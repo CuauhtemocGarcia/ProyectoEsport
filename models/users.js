@@ -32,7 +32,7 @@ const usersModel = {
      FROM
      esports
      WHERE
-     Nombre= ?
+     Nombre = ?
     `,
 
     updateUser: `

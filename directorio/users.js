@@ -207,7 +207,7 @@ res.json({msg:'Jugador actualizado con éxito'})
 };
 //termina aqui
 
-//EDPOINT ELMINACIOM
+//EDPOINT ELMINACION
 const deleteplayer = async(req = request, res = response) =>{
     let conn;
     const {id} = req.params;
@@ -244,49 +244,49 @@ const deleteplayer = async(req = request, res = response) =>{
     }finally{
         if (conn) conn.end();
     }
-}
+};
 
 const signinplayer = async (req = request, res = response) =>{
-  const {Nombre, password} = req.body;
+  const { Nombre, password } = req.body;
 
   let conn;
 
-  if (!Nombre || !password){
-    res.status(400).json({msg: 'Se requiere nombre y contraseña'});
+  if (!Nombre || !password) {
+    res.status(400).json({msg: 'Se requiere nombre y contraseña' });
     return;
   }
 
   try{
     conn = await pool.getConnection();
 
-    const [player] = await  conn.query(
+    const [user] = await  pool.query(
       usersModel.getByusername,
       [Nombre],
       (err) => {throw err;}
     );
-    if (!player || player.is_active == 0){
+    if (!user || user.password == 0){
       res.status(404).json({msg: 'Nombre de usuario o contraseña incorrectos'});
       return;
     }
 
-    const passwordOk = bcrypt.compare(password, player.password);
+    const passwordOk = await bcrypt.compare(password, user.password);
     if (!passwordOk){
       res.status(404).json({msg: 'Nombre de usuario o contraseña incorrectos'});
       return;
     }
-    delete player.password;
-    delete player.created_at;
-    delete player.updated_at;
-    res.json(player);
+    delete user.password;
+    delete user.created_at;
+    delete user.updated_at;
+    res.json(user);
 
 
   }catch(error){
     console.log(error);
     res.status(500).json(error);
   }finally{
-    if (conn) conn.end();
+    if (conn) conn.release();
   }
-}
+};
 
 module.exports = {
   listplayers, 
